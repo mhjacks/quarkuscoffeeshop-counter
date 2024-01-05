@@ -42,12 +42,11 @@ public class OrderService {
     @Channel("web-updates")
     Emitter<OrderUpdate> orderUpdateEmitter;
 
-    @Transactional
     public void onOrderIn(final PlaceOrderCommand placeOrderCommand) {
 
         logger.debug("onOrderIn {}", placeOrderCommand);
 
-        OrderEventResult orderEventResult = Order.process(placeOrderCommand);
+        OrderEventResult orderEventResult = Order.createFromCommand(placeOrderCommand);
 
         logger.debug("OrderEventResult returned: {}", orderEventResult);
 
@@ -80,7 +79,7 @@ public class OrderService {
     @Transactional
     public void onOrderUp(final TicketUp ticketUp) {
 
-        logger.debug("onOrderUp: {}", ticketUp);
+         logger.debug("onOrderUp: {}", ticketUp);
         Order order = orderRepository.findById(ticketUp.getOrderId());
         OrderEventResult orderEventResult = order.applyOrderTicketUp(ticketUp);
         logger.debug("OrderEventResult returned: {}", orderEventResult);
@@ -92,4 +91,17 @@ public class OrderService {
             event.fire(exportedEvent);
         });
     }
+
+    @Override
+    public String toString() {
+        return "OrderService{" +
+                "threadContext=" + threadContext +
+                ", orderRepository=" + orderRepository +
+                ", event=" + event +
+                ", baristaEmitter=" + baristaEmitter +
+                ", kitchenEmitter=" + kitchenEmitter +
+                ", orderUpdateEmitter=" + orderUpdateEmitter +
+                '}';
+    }
+
 }
